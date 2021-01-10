@@ -1,0 +1,2 @@
+# A.I.R
+As a top of the line prototype AI core you are thrown out the airlock by a band of pirate raiders. Found by junkers, you are now tasked with protecting your new home and crew by doing what you do best. Mixing gasses and controlling the life support functions on their ship.  But beware, the universe is filled with wild evolution and some aliens don’t need oxygen to survive. Adapt and roam the universe in hopes to find the top secret lab members that built you.
