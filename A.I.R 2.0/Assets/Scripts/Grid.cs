@@ -8,12 +8,13 @@ public class Grid<TGridObject>
     public int width;
     public int height;
     private Vector3 originPos;
-    private float cellsize;
+    public float cellsize;
     private TGridObject[,] gridArray;
     private TextMesh[,] testTextArray;
 
     //setting up an event to trigger every time a value on the grid changes
     //will eventually use this with the pathfinding system to recalculate if tiles are walkable or not
+    //and use this to change the visuals of the tiles when they are damaged by aliens in game or changed during level development
     public event EventHandler<OnGridValueChangedEvent> OnGridValueChanged;
     public class OnGridValueChangedEvent : EventArgs
     {
@@ -43,18 +44,18 @@ public class Grid<TGridObject>
         //Debugging
         //creates an array of text mesh objects to display values for testing
         testTextArray = new TextMesh[width, height];
-        //fills in the 
+        //fills in the text array and adds bordering debug lines
         for (int x = 0; x < gridArray.GetLength(0); x++)
         {
             for (int y = 0; y < gridArray.GetLength(1); y++)
             {
-                testTextArray[x,y] = CreateWorldText(null, gridArray[x, y]?.ToString(), GetWorldPosition(x, y) + new Vector3(cellsize,0), 20, Color.white, TextAnchor.MiddleCenter, TextAlignment.Center, 500);
-                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, 100f);
-                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, 100f);
+                //testTextArray[x,y] = CreateWorldText(null, gridArray[x, y]?.ToString(), GetWorldPosition(x, y) + new Vector3(cellsize,0), 20, Color.white, TextAnchor.MiddleCenter, TextAlignment.Center, 500);
+                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white,200f);
+                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white,200f);
             }
         }
-        Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 100f);
-        Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 100f);
+        Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white,200f);
+        Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white,200f);
 
         OnGridValueChanged += (object eventsender, OnGridValueChangedEvent eventargs) =>
         {
@@ -110,6 +111,7 @@ public class Grid<TGridObject>
         } 
     }
 
+    //method to trigger the event when an object in the grid is changed
     public void TriggerGridObjectChanged(int x, int y)
     {
         if (OnGridValueChanged != null)

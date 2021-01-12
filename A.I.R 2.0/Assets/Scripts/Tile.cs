@@ -15,8 +15,6 @@ public class Tile
     public int x;
     public int y;
     
-    //variables to keep track of how damaged the wall is, and whether it is walkable
-    //referenced by the pathfinding system, if hp below 20 the creatures can walk over the tile if its a wall
     //referenced by the graphics system as the tile looses hp, the graphic will change to a more damaged version of the tile graphic
     //set the default value to be 100% hp and not walkable
     public int hp = 100;
@@ -68,5 +66,19 @@ public class Tile
         {
             this.hp = 100;
         }
+    }
+
+    //method that triggers when a tile takes damage from an outside sorce 
+    //used for if the aliens are going to have the ability to break through walls and doors if the sitution requires it
+    //it sets the hp and walkability of the tiles appropriately
+    public void TakeDamage(int damage)
+    {
+        this.hp -= damage;
+        if(hp <= 20 && walkable == false)
+        {
+            walkable = true;
+        }
+        //link to an event that will change the tile visual when the tile reaches specific damage thresholds
+        //tileGrid.TriggerGridObjectChanged(x, y);
     }
 }
