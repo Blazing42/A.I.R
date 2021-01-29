@@ -10,6 +10,12 @@ public class LevelEditorButtonBehaviours : MonoBehaviour
     public GameObject LoadButtonPanel { get { return loadButtonPanel; } }
     [SerializeField] GameObject saveButtonPanel;
     [SerializeField] LevelEditorSystem levelEditorSystem;
+    [SerializeField] Text levelEditorStateText;
+
+    void Start()
+    {
+        levelEditorStateText.text = "Level Editor : Edit Tiles";
+    }
 
     //methods to control the buttons in this scene
     public void SaveButtonPressed()
@@ -27,6 +33,25 @@ public class LevelEditorButtonBehaviours : MonoBehaviour
     {
         InstantiateLoadFileButtons();
         loadButtonPanel.SetActive(!loadButtonPanel.activeSelf);
+    }
+
+    public void EditTilemapButtonPressed()
+    {
+        levelEditorSystem.editorState = LevelEditorSystem.EditorState.TILE_EDITOR;
+        levelEditorStateText.text = "Level Editor : Edit Tiles";
+    }
+
+    public void EditRoomsButtonPressed()
+    {
+        levelEditorSystem.editorState = LevelEditorSystem.EditorState.ROOM_EDITOR;
+        levelEditorStateText.text = "Level Editor : Edit Rooms";
+    }
+
+    public void TestButtonPressed()
+    {
+        levelEditorSystem.editorState = LevelEditorSystem.EditorState.TEST;
+        levelEditorSystem.pathfindingGrid.SetWalkability(levelEditorSystem.floorTileMap.tileGrid);
+        levelEditorStateText.text = "Level Editor : Testing";
     }
 
     public void SaveButton()

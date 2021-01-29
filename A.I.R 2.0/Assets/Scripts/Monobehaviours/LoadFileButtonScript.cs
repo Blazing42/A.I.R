@@ -11,8 +11,9 @@ public class LoadFileButtonScript : MonoBehaviour
         string loadfilename = GetComponentInChildren<Text>().text;
         LevelEditorSystem test = GameObject.FindObjectOfType<LevelEditorSystem>();
         LevelEditorButtonBehaviours buttonBehaviours = GameObject.FindObjectOfType<LevelEditorButtonBehaviours>();
-        Debug.Log(test.ToString());
+        //Debug.Log(test.ToString());
         test.floorTileMap.LoadTileMap(loadfilename);
         buttonBehaviours.LoadButtonPanel.SetActive(false);
+        test.pathfindingGrid.SetWalkability(test.floorTileMap.tileGrid);
     }
 }
