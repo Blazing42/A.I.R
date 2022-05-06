@@ -27,9 +27,12 @@ public class Pathfinding
     public List<Vector3> FindPath(Vector3 startWorldPosition, Vector3 endWorldPosition)
     {
         pathfindingGrid.GetXYCoord(startWorldPosition, out int startX, out int startY);
+        Debug.Log(startX + " " + startY);
         pathfindingGrid.GetXYCoord(endWorldPosition, out int endX, out int endY);
+        Debug.Log(endX + " " + endY);
 
         List<PathfindingNode> path = FindPath(startX, startY, endX, endY);
+
         if(path == null)
         {
             return null;
@@ -40,8 +43,9 @@ public class Pathfinding
             foreach (PathfindingNode pathNode in path)
             {
                 Vector3 nodeWorldPos = PathfindingGrid.GetWorldPosition(pathNode.X, pathNode.Y);
-                vectorPath.Add(new Vector3(nodeWorldPos.x + PathfindingGrid.cellsize, nodeWorldPos.y));
-                //Debug.Log(vectorPath[vectorPath.Count-1]);
+                Vector3 pos = new Vector3(nodeWorldPos.x + PathfindingGrid.cellsize, nodeWorldPos.y);
+                vectorPath.Add(pos);
+                Debug.Log(pos.x + " " + pos.y);
             }
             return vectorPath;
         }
@@ -52,7 +56,9 @@ public class Pathfinding
     {
         //sets up the open and closed lists, as well as getting the start and end nodes
         PathfindingNode startNode = pathfindingGrid.GetGridObject(startx, starty);
+        Debug.Log(startNode.ToString());
         PathfindingNode endNode = pathfindingGrid.GetGridObject(endx, endy);
+        Debug.Log(endNode.ToString());
         openList = new List<PathfindingNode> { startNode };
         closedList = new List<PathfindingNode>();
         //resetting the grid after any previous times the pathfinding function has been called and the initial set up the first time
@@ -129,8 +135,82 @@ public class Pathfinding
         //no path was found
         Debug.LogWarning("Path not found");
         return null;
-        
     }
+
+    public List<List<Vector3>> CalculateNodes(Vector3 startWorldPosition, Vector3 endWorldPosition)
+    {
+        List<List<PathfindingNode>> paths = new List<List<PathfindingNode>>();
+        List<PathfindingNode> nodesSetUnwalkable = new List<PathfindingNode>();
+        pathfindingGrid.GetXYCoord(startWorldPosition, out int startX, out int startY);
+        pathfindingGrid.GetXYCoord(endWorldPosition, out int endX, out int endY);
+        PathfindingNode startNode = pathfindingGrid.GetGridObject(startX, startY);
+        PathfindingNode endNode = pathfindingGrid.GetGridObject(endX, endY);
+        List<PathfindingNode> nodesaroundstart = GetNeighbouringPathfindingNodes(startNode);
+        List<PathfindingNode> nodesaroundend = GetNeighbouringPathfindingNodes(endNode);
+        List<PathfindingNode> nodeasaroundstartandEnd = new List<PathfindingNode>();
+        nodeasaroundstartandEnd.AddRange(nodesaroundstart);
+        nodeasaroundstartandEnd.AddRange(nodesaroundend);
+
+        bool isPathLeft = true;
+
+        while (isPathLeft == true)
+        {
+            Debug.Log("calculating path");
+            List<PathfindingNode> path = FindPath(startX, startY, endX, endY);
+
+            if (path != null)
+            {
+                //add the calculated path to the list of paths
+                paths.Add(path);
+                foreach (PathfindingNode node in path)
+                {
+                    if (node != startNode)
+                    {
+                        if (node != endNode)
+                        {
+                            node.walkable = false;
+                            nodesSetUnwalkable.Add(node);
+                        }
+                    }
+                    //go through each of the nodes that neighbour the start and end node, if the node in the path is one of them set it back to walkable and 
+                    //remove from the unwalkable list
+                    /*foreach(PathfindingNode neighbournode in nodeasaroundstartandEnd)
+                    {
+                        if(neighbournode == node)
+                        {
+                            node.walkable = true;
+                            nodesSetUnwalkable.Remove(node);
+                        }
+                    }*/
+                }
+            }
+            else
+            {
+                isPathLeft = false;
+            }
+        }
+
+        List<List<Vector3>> vector3Paths = new List<List<Vector3>>();
+        foreach(List<PathfindingNode> path in paths)
+        {
+            List<Vector3> vectorPath = new List<Vector3>();
+            foreach(PathfindingNode node in path)
+            {
+               Vector3 nodeWorldPos = PathfindingGrid.GetWorldPosition(node.X, node.Y);
+               vectorPath.Add(new Vector3(nodeWorldPos.x + PathfindingGrid.cellsize, nodeWorldPos.y));
+            }
+            vector3Paths.Add(vectorPath);
+        }
+
+        //set all the paths back to walkable for the creatures to walk down
+        foreach(PathfindingNode node in nodesSetUnwalkable)
+        {
+            node.walkable = true;
+        }
+        //return the list of paths
+        return vector3Paths;
+    }
+
     
     //method that takes the previous node values in each each node and returns it as a list of nodes
     List<PathfindingNode> CalculatePath(PathfindingNode endNode)
@@ -224,6 +304,8 @@ public class Pathfinding
     //may need a pathfinding grid for each alien type or set up a dictionary mapping alien type/class to pathnode walkability
     public void SetWalkability(Grid<Tile> tileMapGrid)
     {
+        List<PathfindingNode> nodestoCheck = new List<PathfindingNode>();
+        List<PathfindingNode> nodestoSetUnwalkable = new List<PathfindingNode>();
         //go through each of the pathfinding nodes
         for (int x = 0; x < pathfindingGrid.width; x++)
         {
@@ -234,7 +316,7 @@ public class Pathfinding
                 //get the tile in that position
                Tile tile = tileMapGrid.GetGridObject(gridPosition);
                 //check the type of tile it is
-                if(tile.GetTileType() == Tile.TileType.Space)
+                if(tile.GetTileType() != Tile.TileType.Floor)
                 {
                     //if its space set it to unwalkable
                     PathfindingNode node = pathfindingGrid.GetGridObject(x, y);
@@ -245,8 +327,25 @@ public class Pathfinding
                     //if its floor set it to walkable
                     PathfindingNode node = pathfindingGrid.GetGridObject(x, y);
                     node.walkable = true;
+                    nodestoCheck.Add(node);
                 }
             }
+        }
+
+        foreach(PathfindingNode node in nodestoCheck)
+        {
+            foreach(PathfindingNode neighbourNode in  GetNeighbouringPathfindingNodes(node))
+            {
+                if(neighbourNode.walkable == false)
+                {
+                    nodestoSetUnwalkable.Add(node);
+                }
+            }
+        }
+
+        foreach(PathfindingNode node1 in nodestoSetUnwalkable)
+        {
+            node1.walkable = false;
         }
     }
 }

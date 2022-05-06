@@ -105,7 +105,7 @@ public class TileMapVisuals : MonoBehaviour
                 //asigns an index value to each of the grid squares
                 int index = x * grid.height + (grid.height - (y+1));
                 //Debug.Log(index);
-                Vector3 quadsize = new Vector3(2, 2) * grid.cellsize;
+                Vector3 quadsize = new Vector3(2, 2.6f) * grid.cellsize;
                 //gets the tile that is on the x,y of the grid and asigns it to a variable
                 Tile currentTile = grid.GetGridObject(x,y);
                 //Debug.Log(currentTile.ToString());
@@ -127,7 +127,7 @@ public class TileMapVisuals : MonoBehaviour
                     gridUV11 = uvCoords.uv11;
                  }
 
-                MeshUtilities.AddToMeshArrays(vertices, uv, triangles, index,  new Vector3( grid.GetWorldPosition(x, y).x + quadsize.x* 0.5f, grid.GetWorldPosition(x, y).y - quadsize.y*0.1f), 0f, quadsize, gridUV00, gridUV11);
+                MeshUtilities.AddToMeshArrays(vertices, uv, triangles, index,  new Vector3( grid.GetWorldPosition(x, y).x + quadsize.x* 0.5f, grid.GetWorldPosition(x, y).y + quadsize.y * 0.287f), 0f, quadsize, gridUV00, gridUV11);
             }
         }
         mesh.vertices = vertices;

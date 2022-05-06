@@ -21,7 +21,8 @@ public class LevelEditorSystem: MonoBehaviour
     //Vector3 startPos;
     Vector3 endPos;
     bool isfirstclick = true;
-    public GameObject testcreature;
+    public GameObject testcreatureprefab;
+    GameObject testcreature;
 
     //testing out room system
     public RoomGrid roomGrid;
@@ -118,7 +119,7 @@ public class LevelEditorSystem: MonoBehaviour
             //if the level editor is in the test pathfinding state it allows designers and programmers to test out the pathfinding
             else if (editorState == EditorState.TEST)
             {
-                if(Input.GetMouseButtonDown(0))
+                if(Input.GetMouseButtonDown(0) && testcreature.transform != null)
                 {
                     endPos = InputUtilities.ScreenToWorldPoint(Input.mousePosition, Camera.main);
                     testcreature.GetComponent<Actor>().SetTarget(endPos);
@@ -134,6 +135,19 @@ public class LevelEditorSystem: MonoBehaviour
                             Debug.DrawLine(new Vector3(nodeWorldPos.x + 2, nodeWorldPos.y), new Vector3(nextnodeWorldPos.x + 2, nextnodeWorldPos.y), Color.green, 10f);
                         }
                     }
+                }
+                if(Input.GetMouseButtonDown(1))
+                {
+                    Vector3 mousePosition = InputUtilities.ScreenToWorldPoint(Input.mousePosition, Camera.main);
+                    if (floorTileMap.tileGrid.GetGridObject(mousePosition).GetTileType() != Tile.TileType.Space)
+                    {
+                        testcreature = Instantiate(testcreatureprefab, new Vector3(mousePosition.x, mousePosition.y, 0) , Quaternion.identity);
+                    }
+                    else
+                    {
+                        Debug.Log("you must place the test creature on an existing tile");
+                    }
+                    
                 }
                 //the first time the player clicks will be the start of the pathfinding path
                 /*if (Input.GetMouseButtonDown(0) && isfirstclick == true)
@@ -163,11 +177,11 @@ public class LevelEditorSystem: MonoBehaviour
                 }*/
 
                 //if the player right clicks it cancels the pathfinding path so that they can start again
-                if (Input.GetMouseButtonDown(1))
+                /*if (Input.GetMouseButtonDown(1))
                 {
                     isfirstclick = true;
                     Debug.Log("reset pathfinding");
-                }
+                }*/
 
             }
         }

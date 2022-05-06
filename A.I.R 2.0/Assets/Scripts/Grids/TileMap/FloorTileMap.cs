@@ -79,7 +79,9 @@ public class FloorTileMap {
         SaveObject saveObject = SaveSystem.LoadMostRecentObject<SaveObject>();
         foreach(Tile.SaveObject savedTile in saveObject.tilemapSaveObjectwithTileArray)
         {
+            //get the grid object in that space
             Tile tile = tileGrid.GetGridObject(savedTile.x, savedTile.y);
+            //alter the tiles in it
             tile.Load(savedTile);
         }
         OnLoaded?.Invoke(this, EventArgs.Empty);

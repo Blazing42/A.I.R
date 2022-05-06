@@ -6,7 +6,7 @@ public class Tile
 {
     //variable to store the tiletype, to determine what graphic is loaded
     //create an enumerator to store the different tiletypes
-    public enum TileType{Space, Floor, WallExternal, WallInternal, ExternalCorner, InternalCorner, InternalEnd, Door /*, StairsUp, StairsDown */};
+    public enum TileType{Space, Floor, WallBottomLeft, WallBottomRight, WallTopLeft, WallTopRight, WallCornerLeft, WallCornerRight, WallCornerTop, WallCornerBottom, CorridorLeft, CorridorRight, EndLeftTop, EndRightTop, EndLeftBottom, EndRightBottom /*, StairsUp, StairsDown */};
 
     //set the default to space to help with tilemap creation in the editor
     TileType tileType = TileType.Space;
@@ -18,6 +18,9 @@ public class Tile
     //referenced by the graphics system as the tile looses hp, the graphic will change to a more damaged version of the tile graphic
     //set the default value to be 100% hp and not walkable
     int hp = 100;
+
+    //referenced by the room system, used to figure out which room the tile is in 
+    float roomID = 0.1f;
 
     //reference to the tilegrid that it is attached to, which floor/level
     private Grid<Tile> tileGrid;
@@ -46,6 +49,7 @@ public class Tile
         this.tileGrid = tileGrid;
         this.x = x;
         this.y = y;
+        roomID = 0.1f;
         SetHP();
     }
 
@@ -60,6 +64,18 @@ public class Tile
         {
             this.hp = 100;
         }
+    }
+
+    //methods used to get and set the roomID when creating rooms
+    public void SetRoomID(float newRoomID)
+    {
+        roomID = newRoomID;
+        tileGrid.TriggerGridObjectChanged(x, y);
+    }
+
+    public float GetRoomId()
+    {
+        return roomID;
     }
 
     //method that triggers when a tile takes damage from an outside sorce 
@@ -81,6 +97,7 @@ public class Tile
         public int x;
         public int y;
         public int hp;
+        public float roomID;
     }
 
     public SaveObject Save()
@@ -91,6 +108,7 @@ public class Tile
             x = x,
             y = y,
             hp = hp,
+            roomID = roomID,
         };
     }
 
@@ -98,5 +116,6 @@ public class Tile
     {
         tileType = saveObject.tileType;
         hp = saveObject.hp;
+        roomID = saveObject.roomID;
     }
 }
